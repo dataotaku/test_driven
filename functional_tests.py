@@ -7,7 +7,6 @@ import unittest
 class NewVisitorTest(unittest.TestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
-        self.browser.implicitly_wait(5)
 
     def tearDown(self) -> None:
         self.browser.quit()
@@ -37,8 +36,15 @@ class NewVisitorTest(unittest.TestCase):
 
         table = self.browser.find_element(By.ID, "id_list_table")
         rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertTrue(any(row.text == "1: Buy peacock feathers" for row in rows),
-                        "신규 작업이 테이블에 표시되지 않는다.")
+        self.assertIn(
+            "1: Buy peacock feathers", 
+            [row.text for row in rows]
+        )
+
+        self.assertIn(
+            "2: Use peacock feathers to make a fly", 
+            [row.text for row in rows]
+        )
 
         # 추가 아이템을 입력할 수 있는 여분의 텍스트상자가 존재한다.
         # 다시 "공작 깃털을 이용해서 그물만들기"라고 입력한다 (에디스는 매우 체계적인 사람이다)
