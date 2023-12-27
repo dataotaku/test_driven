@@ -11,6 +11,11 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.browser.quit()
 
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element(By.ID, "id_list_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_todo_list(self):
         # 에디스는 좋은 온라인 To-Do 앱이 있다는 소식을 들었다.
         # 해당 웹사이트에 확인하러간다.
@@ -33,24 +38,18 @@ class NewVisitorTest(unittest.TestCase):
         # "1: 공작깃털 사기" 아이템이 추가된다.
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
-
-        table = self.browser.find_element(By.ID, "id_list_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn(
-            "1: Buy peacock feathers", 
-            [row.text for row in rows]
-        )
-
-        self.assertIn(
-            "2: Use peacock feathers to make a fly", 
-            [row.text for row in rows]
-        )
+        self.check_for_row_in_list_table("1: Buy peacock feathers")
 
         # 추가 아이템을 입력할 수 있는 여분의 텍스트상자가 존재한다.
         # 다시 "공작 깃털을 이용해서 그물만들기"라고 입력한다 (에디스는 매우 체계적인 사람이다)
-        self.fail("Finish the test!")
+        inputbox = self.browser.find_element(By.ID, "id_new_item")
+        inputbox.send_keys("Use peacock feathers to make a fly")
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # 페이지는 다시 갱신되고, 두개 아이템이 목록에 보인다.
+        self.check_for_row_in_list_table("1: Buy peacock feathers")
+        self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
         # 만족하고, 잠자리에 든다.
 
