@@ -1,4 +1,6 @@
+
 from django.test import TestCase
+from selenium import webdriver
 # from lists.views import home_page
 # from django.http import HttpRequest
 from lists.models import Item
@@ -45,7 +47,7 @@ class ItemModelTest(TestCase):
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, "The first (ever) list item")
-        self.assertEqual(second_saved_item.text, "Item The second")
+        self.assertEqual(second_saved_item.text, "Item The second")  
 
 
 
