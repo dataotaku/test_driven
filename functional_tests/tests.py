@@ -2,8 +2,11 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 import time
 import unittest
+
+MAX_WAIT = 5
 
 class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
@@ -12,10 +15,18 @@ class NewVisitorTest(LiveServerTestCase):
     def tearDown(self) -> None:
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element(By.ID, "id_list_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn(row_text, [row.text for row in rows])
+    def wait_for_row_in_list_table(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element(By.ID, "id_list_table") # "id_list_table"
+                rows = table.find_elements(By.TAG_NAME, "tr")
+                self.assertIn(row_text, [row.text for row in rows]) #row_text
+                return
+            except (AssertionError, WebDriverException):
+                if time.time() - start_time > MAX_WAIT:
+                    raise
+                time.sleep(0.5)
 
     def test_can_start_a_todo_list(self):
         # 에디스는 좋은 온라인 To-Do 앱이 있다는 소식을 들었다.
@@ -38,8 +49,7 @@ class NewVisitorTest(LiveServerTestCase):
         # 엔터키를 치면 페이지가 갱신되고 작업목록에
         # "1: 공작깃털 사기" 아이템이 추가된다.
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table("1: Buy peacock feathers")
+        self.wait_for_row_in_list_table("1: Buy peacock feathers")
 
         # 추가 아이템을 입력할 수 있는 여분의 텍스트상자가 존재한다.
         # 다시 "공작 깃털을 이용해서 그물만들기"라고 입력한다 (에디스는 매우 체계적인 사람이다)
@@ -49,8 +59,8 @@ class NewVisitorTest(LiveServerTestCase):
         time.sleep(1)
 
         # 페이지는 다시 갱신되고, 두개 아이템이 목록에 보인다.
-        self.check_for_row_in_list_table("1: Buy peacock feathers")
-        self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
+        self.wait_for_row_in_list_table("1: Buy peacock feathers")
+        self.wait_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
         # 만족하고, 잠자리에 든다.
         self.fail("Finish the test!")
