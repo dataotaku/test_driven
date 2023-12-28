@@ -1,10 +1,11 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 import unittest
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
 
@@ -19,7 +20,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_todo_list(self):
         # 에디스는 좋은 온라인 To-Do 앱이 있다는 소식을 들었다.
         # 해당 웹사이트에 확인하러간다.
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
 
         # 웹페이지 타이틀과 헤더가 'To-Do'를 표시하고 있다.
         self.assertIn('To-Do', self.browser.title)
@@ -52,6 +53,4 @@ class NewVisitorTest(unittest.TestCase):
         self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
         # 만족하고, 잠자리에 든다.
-
-if __name__ == "__main__":
-    unittest.main()
+        self.fail("Finish the test!")
